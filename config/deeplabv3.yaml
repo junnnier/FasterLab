@@ -1,0 +1,61 @@
+#-------------实验设置-------------
+EXPERIMENT_NAME: deeplabv3plus  # 实验名称
+LOG_DIR: runs  # 实验保存路径
+LOG_VERBOSE: false  # 记录冗长的模型参数信息
+# ------------数据集---------------
+TRAIN_DATASET: E:\Dataset\VOCdevkit\VOC2012\train.txt  # 训练集
+TEST_DATASET: E:\Dataset\VOCdevkit\VOC2012\val.txt # 测试集
+#------------训练参数--------------
+DATASET_TASK: DeepLabV3Dataset  # 数据加载函数
+IMAGE_SIZE: [513, 513] # 训练图片尺寸
+EPOCH: 300
+TRAIN_BATCH_SIZE: 16  # DDP模式下为所有卡上batch-size的总和
+TEST_BATCH_SIZE: 1  # DDP模式下为所有卡上batch-size的总和，通常取TRAIN_BATCH_SIZE的一半
+NUM_WORKERS: 6
+MODEL_NAME: deeplabv3plus  # 网络模型
+INITIALIZE_WEIGHTS: null  # 网络权重初始化方式, null为不使用
+DEVICE: "1"  # 指定设备'cpu' or '0' or '0,1,2,3'
+LOSS_FUNCTION: DeepLabV3PlusLoss  # 损失函数
+OPTIMIZER: DeepLabV3PlusSGD  # 优化器
+SCHEDULER: DeepLabV3PlusLR  # 学习率优化
+EVALUATE_FUNCTION: DeepLabV3PlusEvaluate  # 对模型进行精度验证的函数
+TRAINING_FUNCTION: DeepLabV3PlustTrain  # 对模型进行训练的函数
+KEEP_SAVE: 0  # 持续保存第i个epoch后的所有模型，0为不保存
+INTERVAL_SAVE: 0  # 每隔i个epoch保存一次，0为不保存
+WARMUP: 0  # 模型预热训练多少个epoch
+NORMALIZE_MEAN: [0.485, 0.456, 0.406]
+NORMALIZE_STD: [0.229, 0.224, 0.225]
+#------------指定模型的具体参数--------------
+MODEL_NAME_PARAM:
+    deeplabv3plus:
+        category: 21  # 类别数
+        output_stride: 8 # 输出下采样倍率
+        pretrained_backbone: xception-43020ad28.pth # 预训练的backbone的模型参数，如空则不使用预训练模型
+        separable_conv: true # 是否使用可分离卷积
+#------------指定训练epoch的具体参数--------------
+TRAINING_FUNCTION_PARAM:
+    DeepLabV3PlustTrain:
+#------------指定权重初始化的具体参数--------------
+INITIALIZE_WEIGHTS_PARAM:
+    DeepLabV3Plus_Initialize:
+#------------指定损失函数的具体参数--------------
+LOSS_FUNCTION_PARAM:
+    DeepLabV3PlusLoss:
+        alpha: 1
+        gamma: 0
+        ignore_index: 255
+        size_average: true
+#------------指定优化器的具体参数--------------
+OPTIMIZER_PARAM:
+    DeepLabV3PlusSGD:
+        lr: 0.01  # 初始学习率
+        momentum: 0.9
+        weight_decay: 0.0001
+#------------指定scheduler的具体参数--------------
+SCHEDULER_PARAM:
+    DeepLabV3PlusLR:
+        total_itrs: 27300 # 迭代次数
+#------------指定精度验证的具体参数--------------
+EVALUATE_FUNCTION_PARAM:
+    DeepLabV3PlusEvaluate:
+        num_classes: 21  # 类别数量

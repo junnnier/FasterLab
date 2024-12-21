@@ -1,0 +1,62 @@
+# !!! 该scheduler使用的是ReduceLROnPlateau，需要修改train.py中train_scheduler.step()这一部分的代码，将验证的avg_loss传入train_scheduler中。
+
+#-------------实验设置-------------
+EXPERIMENT_NAME: flickr30k  # 实验名称
+LOG_DIR: runs  # 实验保存路径
+LOG_VERBOSE: false  # 记录冗长的模型参数信息
+# ------------数据集---------------
+TRAIN_DATASET: E:\Dataset\Flickr30K\train.txt  # 训练集
+TEST_DATASET: E:\Dataset\Flickr30K\test.txt  # 测试集
+#------------训练参数--------------
+DATASET_TASK: CLIPDataset  # 数据加载函数
+IMAGE_SIZE: [224,224] # 训练图片尺寸
+EPOCH: 2
+TRAIN_BATCH_SIZE: 32  # DDP模式下为所有卡上batch-size的总和
+TEST_BATCH_SIZE: 32  # DDP模式下为所有卡上batch-size的总和，通常取TRAIN_BATCH_SIZE的一半
+NUM_WORKERS: 8
+MODEL_NAME: clip  # 网络模型
+INITIALIZE_WEIGHTS: null  # 网络权重初始化方式, null为不使用
+DEVICE: "1"  # 指定设备'cpu' or '0' or '0,1,2,3'
+LOSS_FUNCTION: CLIPLoss  # 损失函数
+OPTIMIZER: CLIPAdamW  # 优化器
+SCHEDULER: ReduceLROnPlateau  # 学习率优化
+EVALUATE_FUNCTION: CLIPEvaluate # 对模型进行精度验证的函数
+TRAINING_FUNCTION: CLIPTrain  # 对模型进行训练的函数
+KEEP_SAVE: 0  # 持续保存第i个epoch后的所有模型，0为不保存
+INTERVAL_SAVE: 0  # 每隔i个epoch保存一次，0为不保存
+WARMUP: 0  # 模型预热训练多少个epoch
+TEXT_TOKENIZER: "/mnt/work01/project/wantianjun/general_detection/other_dataset/Flickr30K/textencoder_model"  # 分词器模型token
+MAX_LENGTH: 200  # 句子词汇最大长度
+#------------指定模型的具体参数--------------
+MODEL_NAME_PARAM:
+    clip:
+        text_model_name: "/mnt/work01/project/wantianjun/general_detection/other_dataset/Flickr30K/textencoder_model"
+        trainable: true  # 用于图像编码器和文本编码器训练
+        image_embedding: 2048  # 图片编码后的维度
+        text_embedding: 768  # 文本编码后的维度
+        projection_dim: 256  # 投影的维度
+        dropout: 0.1  # 投影模块随机失活率
+#------------指定训练epoch的具体参数--------------
+TRAINING_FUNCTION_PARAM:
+    CLIPTrain:
+#------------指定权重初始化的具体参数--------------
+INITIALIZE_WEIGHTS_PARAM:
+#------------指定损失函数的具体参数--------------
+LOSS_FUNCTION_PARAM:
+    CLIPLoss:
+        temperature: 1.0
+#------------指定优化器的具体参数--------------
+OPTIMIZER_PARAM:
+    CLIPAdamW:
+        head_lr: 0.001
+        image_encoder_lr: 0.0001
+        text_encoder_lr: 0.00001
+        weight_decay: 0.001
+#------------指定scheduler的具体参数--------------
+SCHEDULER_PARAM:
+    ReduceLROnPlateau:
+        patience: 1
+        factor: 0.8
+#------------指定精度验证的具体参数--------------
+EVALUATE_FUNCTION_PARAM:
+    CLIPEvaluate:

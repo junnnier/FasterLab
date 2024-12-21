@@ -1,0 +1,129 @@
+#-------------实验设置-------------
+EXPERIMENT_NAME: yolov5  # 实验名称
+LOG_DIR: runs  # 实验保存路径
+LOG_VERBOSE: false  # 记录冗长的模型参数信息
+# ------------数据集---------------
+TRAIN_DATASET: E:\Dataset\train.txt  # 训练集
+TEST_DATASET: E:\Dataset\test.txt  # 测试集
+#------------训练参数--------------
+DATASET_TASK: DetectDataset  # 数据加载函数
+IMAGE_SIZE: [512,512] # 训练图片尺寸
+EPOCH: 200
+TRAIN_BATCH_SIZE: 64  # DDP模式下为所有卡上batch-size的总和
+TEST_BATCH_SIZE: 32  # DDP模式下为所有卡上batch-size的总和，通常取TRAIN_BATCH_SIZE的一半
+NUM_WORKERS: 8
+MODEL_NAME: yolov5l  # 网络模型
+INITIALIZE_WEIGHTS: Yolov5_Initialize  # 网络权重初始化方式, null为不使用
+DEVICE: "1"  # 指定设备'cpu' or '0' or '0,1,2,3'
+LOSS_FUNCTION: Yolov5Loss  # 损失函数
+OPTIMIZER: Yolov5SGD  # 优化器
+SCHEDULER: OneCycleLR  # 学习率优化
+EVALUATE_FUNCTION: Yolov5Evaluate # 对模型进行精度验证的函数
+TRAINING_FUNCTION: Yolov5Train  # 对模型进行训练的函数
+KEEP_SAVE: 0  # 持续保存第i个epoch后的所有模型，0为不保存
+INTERVAL_SAVE: 0  # 每隔i个epoch保存一次，0为不保存
+WARMUP: 0  # 模型预热训练多少个epoch
+COLOR_AUGMNET: 0.0  # 色彩增强概率
+FLIP_TD: 0.0  # 上下翻转概率
+FLIP_LR: 0.0  # 左右翻转概率
+MOSAIC: 0.5  # 马赛克增强
+MixUp: 0.0  # 进行mixup增强
+LABEL_INDEX_NAME:  # 标签类别名称索引
+    [
+      adidas,
+      aimashi,
+      baidagua,
+      baiwa,
+      banshenshali,
+      beibao,
+      binghaofu,
+      dakaichaneiyi,
+      dongmanbaiwa,
+      dongmansiwa,
+      erhuan,
+      fanghufu,
+      fashi,
+      gaogenxie,
+      guizhonghu,
+      guoxiong,
+      heipixie,
+      heiwa,
+      jiangshidandun,
+      jiezhi,
+      kuangwei,
+      kuzi,
+      laolishi,
+      liantiyongyi,
+      lingdai,
+      luyiweideng,
+      maozi,
+      neiku,
+      nike,
+      puma,
+      qianbao,
+      qingquneiyi,
+      qunzi,
+      shangyi,
+      shoubiao,
+      shoushufu,
+      shouzhuo,
+      siwa,
+      taiyangjing,
+      tikuabao,
+      toushichangqun,
+      toushineiku,
+      vans,
+      wangguan,
+      wazi,
+      xianglian,
+      xiangnaier,
+      xiangquan,
+      xiezi,
+      xiongzhao,
+      xunzhang,
+      yaoshi,
+      yundongneiyi
+    ]
+#------------指定模型的具体参数--------------
+MODEL_NAME_PARAM:
+    yolov5l:
+        category: 53
+#------------指定训练epoch的具体参数--------------
+TRAINING_FUNCTION_PARAM:
+    Yolov5Train:
+        AMP: true  # 自动混合精度，只能在cuda上使用
+#------------指定权重初始化的具体参数--------------
+INITIALIZE_WEIGHTS_PARAM:
+    Yolov5_Initialize:
+#------------指定损失函数的具体参数--------------
+LOSS_FUNCTION_PARAM:
+    Yolov5Loss:
+        box: 0.05  # box损失增益
+        obj: 0.64  # 目标损失增益
+        cls: 0.5  # 类别损失增益
+        anchor_t: 4.0  # anchor-multiple threshold
+        cls_pw: 1.0  # 类别BCELoss正样本权重
+        obj_pw: 1.0  # 目标BCELoss正样本权重
+        label_smooth: 0.0  # 标签平滑
+#------------指定优化器的具体参数--------------
+OPTIMIZER_PARAM:
+    Yolov5SGD:
+        lr: 0.01  # 初始学习率
+        momentum: 0.937
+        weight_decay: 0.0005
+    Yolov5Adam:
+        lr: 0.001  # 初始学习率
+        momentum: 0.937
+        weight_decay: 0.0005
+#------------指定scheduler的具体参数--------------
+SCHEDULER_PARAM:
+    OneCycleLR:
+        epoch: 200 # 在多个少epoch内衰减
+        lrf: 0.1  # 在step内学习率系数从1衰减到该值
+#------------指定精度验证的具体参数--------------
+EVALUATE_FUNCTION_PARAM:
+    Yolov5Evaluate:
+        conf_thres: 0.001  # 置信度阈值
+        iou_thres: 0.6  # NMS的IoU阈值
+        single_cls: false  # 全部视为单一类数据集
+        plots: false  # 画图

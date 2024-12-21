@@ -1,0 +1,65 @@
+#-------------实验设置-------------
+EXPERIMENT_NAME: rain100H_Augment  # 实验名称
+LOG_DIR: runs  # 实验保存路径
+LOG_VERBOSE: false  # 记录冗长的模型参数信息
+# ------------数据集---------------
+TRAIN_DATASET: E:\Dataset\Rain100H_old_version\train.txt  # 训练集
+TEST_DATASET: E:\Dataset\Rain100H_old_version\test.txt  # 测试集
+#------------训练参数--------------
+DATASET_TASK: DeRainDataset  # 数据加载函数
+IMAGE_SIZE: [256,256] # 训练图片尺寸
+EPOCH: 5000
+TRAIN_BATCH_SIZE: 16  # DDP模式下为所有卡上batch-size的总和
+TEST_BATCH_SIZE: 1  # DDP模式下为所有卡上batch-size的总和，通常取TRAIN_BATCH_SIZE的一半。这个网络下必须为1。
+NUM_WORKERS: 8
+MODEL_NAME: derain  # 网络模型
+INITIALIZE_WEIGHTS: DeRain_Initialize  # 网络权重初始化方式, null为不使用
+DEVICE: "1"  # 指定设备'cpu' or '0' or '0,1,2,3'
+LOSS_FUNCTION: DeRainLoss  # 损失函数
+OPTIMIZER: Adam  # 优化器
+SCHEDULER: DeRainLR  # 学习率优化
+EVALUATE_FUNCTION: DeRainEvaluate # 对模型进行精度验证的函数
+TRAINING_FUNCTION: DeRainTrain  # 对模型进行训练的函数
+KEEP_SAVE: 0  # 持续保存第i个epoch后的所有模型，0为不保存
+INTERVAL_SAVE: 0  # 每隔i个epoch保存一次，0为不保存
+WARMUP: 0  # 模型预热训练多少个epoch
+FLIP_TD: 0.0  # 上下翻转概率
+FLIP_LR: 0.0  # 左右翻转概率
+ROTATION: null  # 旋转+/-角度，null为不旋转，[90,90]
+RANDOM_CROP: true  # 随机裁剪
+RAIN_AUGMENT: /mnt/work01/project/wantianjun/general_detection/other_dataset/Rain100H_old_version/Streaks_Garg06  # 雨量增强，这里填写雨层增强的目录路径
+#------------指定模型的具体参数--------------
+MODEL_NAME_PARAM:
+    derain:
+        burst_length: 1
+        kernel_size: [3]
+        upMode: bilinear
+#------------指定训练epoch的具体参数--------------
+TRAINING_FUNCTION_PARAM:
+    DeRainTrain:
+        AMP: false  # 自动混合精度，只能在cuda上使用
+#------------指定权重初始化的具体参数--------------
+INITIALIZE_WEIGHTS_PARAM:
+    DeRain_Initialize:
+        init_type: xavier
+        init_gain: 0.02
+#------------指定损失函数的具体参数--------------
+LOSS_FUNCTION_PARAM:
+    DeRainLoss:
+#------------指定优化器的具体参数--------------
+OPTIMIZER_PARAM:
+    Adam:
+        lr: 0.0002  # 初始学习率
+        momentum1: 0.5
+        momentum2: 0.999
+        weight_decay: 0
+#------------指定scheduler的具体参数--------------
+SCHEDULER_PARAM:
+    DeRainLR:
+        lrf: 1.0
+        milestones: 2000
+        epoch: 5000
+#------------指定精度验证的具体参数--------------
+EVALUATE_FUNCTION_PARAM:
+   DeRainEvaluate:
+        visual: true

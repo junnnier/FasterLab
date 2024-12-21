@@ -1,0 +1,94 @@
+#-------------实验设置-------------
+EXPERIMENT_NAME: detr  # 实验名称
+LOG_DIR: runs  # 实验保存路径
+LOG_VERBOSE: false  # 记录冗长的模型参数信息
+# ------------数据集---------------
+TRAIN_DATASET: [E:\Dataset\coco2017\train2017,
+                E:\Dataset\coco2017\annotations\instances_train2017.json]  # 训练集
+TEST_DATASET: [E:\Dataset\coco2017\val2017,
+               E:\Dataset\coco2017\annotations\instances_val2017.json] # 测试集
+#------------训练参数--------------
+DATASET_TASK: DETRDataset  # 数据加载函数
+IMAGE_SIZE: [480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800] # 训练图片尺寸
+EPOCH: 300
+TRAIN_BATCH_SIZE: 6  # DDP模式下为所有卡上batch-size的总和
+TEST_BATCH_SIZE: 2  # DDP模式下为所有卡上batch-size的总和，通常取TRAIN_BATCH_SIZE的一半
+NUM_WORKERS: 4
+MODEL_NAME: detr  # 网络模型
+INITIALIZE_WEIGHTS: null  # 网络权重初始化方式, null为不使用
+DEVICE: "1"  # 指定设备'cpu' or '0' or '0,1,2,3'
+LOSS_FUNCTION: DETRLoss  # 损失函数
+OPTIMIZER: DETRAdamW  # 优化器
+SCHEDULER: StepLR  # 学习率优化
+EVALUATE_FUNCTION: DETREvaluate  # 对模型进行精度验证的函数
+TRAINING_FUNCTION: DETRTrain  # 对模型进行训练的函数
+KEEP_SAVE: 0  # 持续保存第i个epoch后的所有模型，0为不保存
+INTERVAL_SAVE: 0  # 每隔i个epoch保存一次，0为不保存
+WARMUP: 0  # 模型预热训练多少个epoch
+RETURN_MASK: false  # 数据加载生成mask，训练分割模型使用
+NORMALIZE_MEAN: [0.485, 0.456, 0.406]
+NORMALIZE_STD: [0.229, 0.224, 0.225]
+#------------指定模型的具体参数--------------
+MODEL_NAME_PARAM:
+    detr:
+        category: 91  # 类别数
+        backbone:
+            position_encoding:
+                hidden_dim: 256  # transformer的维度
+                position_embedding: sine  # 图像特征上使用的位置嵌入方式
+            lr_backbone: 0.00001  # backbone的学习率
+            masks: false  # 是否训练分割头
+            backbone: resnet50  # backbone网络结构
+            backbone_weight: resnet50-11ad3fa6.pth
+            dilation: false  # 是否将最后一个卷积块(DC5)中的stride替换为dilation
+        transformer:
+            hidden_dim: 256  # transformer的维度
+            dropout: 0.1  # 随机失活率
+            nheads: 8  # attention head的数量
+            dim_feedforward: 2048  # 前馈层的中间维度
+            enc_layers: 6  # 编码层数
+            dec_layers: 6  # 解码层数
+            pre_norm: false  # 预先归一化
+        num_queries: 100  # 查询框数
+        aux_loss: true  # 辅助解码loss
+        masks: false  # 图像分割训练
+        frozen_weights:  # 预训练模型的路径。如果设置，则只训练掩模头
+#------------指定训练epoch的具体参数--------------
+TRAINING_FUNCTION_PARAM:
+    DETRTrain:
+        clip_max_norm: 0.1  # 梯度裁剪最大范数
+#------------指定权重初始化的具体参数--------------
+INITIALIZE_WEIGHTS_PARAM:
+    DETR_Initialize:
+#------------指定损失函数的具体参数--------------
+LOSS_FUNCTION_PARAM:
+    DETRLoss:
+        cost_class: 1  # 匹配中的类别系数
+        cost_bbox: 5  # 匹配中框的L1系数
+        cost_giou: 2  # 匹配中框的giou系数
+        bbox_loss_coef: 5
+        giou_loss_coef: 2
+        aux_loss: true  # 辅助解码loss
+        num_classes: 91  # 类别数量
+        eos_coef: 0.1  # 无对象类的相对分类权值
+        dec_layers: 6  # 解码层数
+        masks: false # 是否计算mask
+        mask_loss_coef: 1
+        dice_loss_coef: 1
+#------------指定优化器的具体参数--------------
+OPTIMIZER_PARAM:
+    DETRAdamW:
+        lr_backbone: 0.00001  # 初始学习率
+        lr: 0.0001
+        weight_decay: 0.0001
+#------------指定scheduler的具体参数--------------
+SCHEDULER_PARAM:
+    StepLR:
+        step_size: 200 # 间隔多个少epoch衰减
+        gamma: 0.1  # 每次学习率衰减系数
+#------------指定精度验证的具体参数--------------
+EVALUATE_FUNCTION_PARAM:
+    DETREvaluate:
+        conf_thres: 0.001  # 置信度阈值
+        plots: false  # 画图
+        masks: false  # 图像分割训练

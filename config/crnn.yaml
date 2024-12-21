@@ -1,0 +1,58 @@
+#-------------实验设置-------------
+EXPERIMENT_NAME: crnn  # 实验名称
+LOG_DIR: runs  # 实验保存路径
+LOG_VERBOSE: false  # 记录冗长的模型参数信息
+# ------------数据集---------------
+TRAIN_DATASET: E:\Dataset\Synthetic_Chinese\train_new.txt  # 训练集
+TEST_DATASET: E:\Dataset\Synthetic_Chinese\test_new.txt  # 测试集
+CHAR_DICTORY_FILE: E:\Dataset\Synthetic_Chinese\char_std_5990.txt  # 字典文件
+#------------训练参数--------------
+DATASET_TASK: OCRRecognizeDataset  # 数据加载函
+IMAGE_SIZE: [280,32] # 训练图片尺寸，[宽/高]
+EPOCH: &EPOCH 100
+TRAIN_BATCH_SIZE: 128  # DDP模式下为所有卡上batch-size的总和
+TEST_BATCH_SIZE: 64  # DDP模式下为所有卡上batch-size的总和，通常取TRAIN_BATCH_SIZE的一半
+NUM_WORKERS: 2
+MODEL_NAME: crnn  # 网络模型
+INITIALIZE_WEIGHTS: ORCRecognize_Initialize  # 网络权重初始化方式, null为不使用
+DEVICE: "cpu"  # 指定设备'cpu' or '0' or '0,1,2,3'
+LOSS_FUNCTION: CTCLoss  # 损失函数
+OPTIMIZER: Adam  # 优化器
+SCHEDULER: MultiStepLR  # 学习率优化
+EVALUATE_FUNCTION: OCRRecognizeEvaluate # 对模型进行精度验证的函数
+TRAINING_FUNCTION: OCRRecognizeTrain  # 对模型进行训练的函数
+KEEP_SAVE: 0  # 持续保存第i个epoch后的所有模型，0为不保存
+INTERVAL_SAVE: 0  # 每隔i个epoch保存一次，0为不保存
+WARMUP: 0  # 模型预热训练多少个epoch
+COLOR_AUGMNET: 0.0  # 色彩增强概率
+CATEGORY: &CATEGORY 5990  # 所有字符类别数
+MAX_LABEL_LENGTH: 10  # 最大标签长度
+#------------指定模型的具体参数--------------
+MODEL_NAME_PARAM:
+    crnn:
+        category: *CATEGORY  # 训练类别
+#------------指定训练epoch的具体参数--------------
+TRAINING_FUNCTION_PARAM:
+    OCRRecognizeTrain:
+#------------指定权重初始化的具体参数--------------
+INITIALIZE_WEIGHTS_PARAM:
+    ORCRecognize_Initialize:
+#------------指定损失函数的具体参数--------------
+LOSS_FUNCTION_PARAM:
+    CTCLoss:
+        blank: 0  # 空白字符标签，根据该字符在预测总字符集中的位置来设定
+#------------指定优化器的具体参数--------------
+OPTIMIZER_PARAM:
+    Adam:
+        lr: 0.001  # 初始学习率
+        momentum1: 0.9
+        momentum2: 0.999
+        weight_decay: 0.00001
+#------------指定scheduler的具体参数--------------
+SCHEDULER_PARAM:
+    MultiStepLR:
+        milestones: [*EPOCH]  # 第i个epoch的时候调整一次学习率（不含warmup次数）
+        gamma: 0.1  # 衰减因子
+#------------指定精度验证的具体参数--------------
+EVALUATE_FUNCTION_PARAM:
+    OCRRecognizeEvaluate:
