@@ -1,5 +1,5 @@
 # FasterLab
-A deep learning model training framework with high scalability, everything is modular.
+A deep learning model training platform with high scalability, everything is modular.
 ## Support
 Currently supported model structures are:
 ```
@@ -14,7 +14,7 @@ Image-Text:
 DeNoising:
     EfficientDeRain
 OCR:
-    RCNN
+    DBNet、RCNN
 ```
 ## Instructions
 You can customize various modules for your training tasks, such as: **network structures** (under ./models folder), **network weight initialize** (under ./utils/weight_initialize.py file), **dataset loading** (under ./dataset folder), **optimizers** (under ./utils/optimizer.py file), **schedulers** (under ./utils/scheduler.py file), **training process** (under ./training folder), **loss function** (under ./loss folder), **evaluate function** (under ./evaluate folder), **inference pre-process** (under ./inference_pre folder), **inference post-process** (under ./inference_post folder), and more.
@@ -45,7 +45,7 @@ def xxx(model, param):
 ### 4. dataset loading
 In order to adapt to different training tasks, you can customize the dataset loading module. You need to create a function in the file, where the file name must be the same as the parameter of the variable **DATASET_TASK** in the configuration file, and the call function template in the file is as follows.
 
-If you want to use the default dataset loading module, you need to generate the specified file format. Please refer to the [**Dataset Format**](##Dataset-Format) for details.
+If you want to use the default dataset loading module, you need to generate the specified file format. Please refer to the [Dataset Format](##Dataset Format) for details.
 ```
 from dataset.Base import BaseDataset
 
